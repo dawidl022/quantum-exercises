@@ -9,6 +9,22 @@ impl<T> Complex<T> {
     }
 }
 
+impl<T> std::fmt::Display for Complex<T>
+where
+    T: std::fmt::Display,
+    T: num::traits::Zero,
+    T: PartialOrd,
+    T: std::ops::Neg<Output = T>,
+    T: Copy,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if self.im < T::zero() {
+            return write!(f, "{} - {}i", self.re, -self.im);
+        }
+        write!(f, "{} + {}i", self.re, self.im)
+    }
+}
+
 impl<T, O> std::ops::Add<Complex<T>> for Complex<T>
 where
     T: std::ops::Add<Output = O>,
@@ -50,12 +66,14 @@ mod tests {
         let c = a + b;
         assert_eq!(c.re, 4);
         assert_eq!(c.im, 3);
+        assert_eq!(format!("{}", c), "4 + 3i");
 
         let a = Complex::new(-3, 1);
         let b = Complex::new(2, -4);
         let c = a + b;
         assert_eq!(c.re, -1);
         assert_eq!(c.im, -3);
+        assert_eq!(format!("{}", c), "-1 - 3i");
     }
 
     #[test]
@@ -65,11 +83,21 @@ mod tests {
         let c = a * b;
         assert_eq!(c.re, 7);
         assert_eq!(c.im, 11);
+        assert_eq!(format!("{}", c), "7 + 11i");
 
         let a = Complex::new(-3, 1);
         let b = Complex::new(2, -4);
         let c = a * b;
         assert_eq!(c.re, -2);
         assert_eq!(c.im, 14);
+        assert_eq!(format!("{}", c), "-2 + 14i");
+    }
+
+    #[test]
+    fn ex_1_2_1() {
+        type C<T> = Complex<T>;
+
+        let res = C::new(-3, -1) * C::new(1, -2);
+        println!("{}", res);
     }
 }
