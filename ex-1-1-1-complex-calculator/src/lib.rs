@@ -39,6 +39,20 @@ where
     }
 }
 
+impl<T, O> std::ops::Sub<Complex<T>> for Complex<T>
+where
+    T: std::ops::Sub<Output = O>,
+{
+    type Output = Complex<O>;
+
+    fn sub(self, rhs: Complex<T>) -> Self::Output {
+        Complex {
+            re: self.re - rhs.re,
+            im: self.im - rhs.im,
+        }
+    }
+}
+
 impl<T, O, O1> std::ops::Mul<Complex<T>> for Complex<T>
 where
     T: Copy + std::ops::Mul<Output = O1>,
@@ -55,9 +69,29 @@ where
     }
 }
 
+impl<T, O, O1, O2> std::ops::Div<Complex<T>> for Complex<T>
+where
+    T: Copy + std::ops::Mul<Output = O1>,
+    O1: std::ops::Add<Output = O2>,
+    O1: std::ops::Sub<Output = O2>,
+    O2: Copy + std::ops::Div<Output = O>,
+{
+    type Output = Complex<O>;
+
+    fn div(self, rhs: Complex<T>) -> Self::Output {
+        let den = rhs.re * rhs.re + rhs.im * rhs.im;
+        Complex {
+            re: (self.re * rhs.re + self.im * rhs.im) / den,
+            im: (self.im * rhs.re - self.re * rhs.im) / den,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::Complex;
+
+    type C<T> = Complex<T>;
 
     #[test]
     fn test_add() {
@@ -95,9 +129,13 @@ mod tests {
 
     #[test]
     fn ex_1_2_1() {
-        type C<T> = Complex<T>;
-
         let res = C::new(-3, -1) * C::new(1, -2);
+        println!("{}", res);
+    }
+
+    #[test]
+    fn ex_1_2_3() {
+        let res = C::new(0.0, 3.0) / C::new(-1.0, -1.0);
         println!("{}", res);
     }
 }
