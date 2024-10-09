@@ -1,3 +1,5 @@
+mod polar;
+
 #[derive(Debug, Clone, Copy)]
 pub struct Complex<T> {
     pub re: T,
@@ -207,6 +209,18 @@ mod tests {
     #[test]
     fn ex_1_2_3() {
         let res = C::new(0.0, 3.0) / C::new(-1.0, -1.0);
+        println!("{}", res);
+    }
+
+    #[test]
+    fn ex_1_3_4() {
+        let res = C::new(-2, -1) * C::new(-1, -2);
+        println!("{}", res);
+    }
+
+    #[test]
+    fn ex_1_3_7() {
+        let res = C::new(2, 2) / C::new(1, -1);
         println!("{}", res);
     }
 }
