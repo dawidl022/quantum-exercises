@@ -1,3 +1,4 @@
+#[derive(Debug, Clone, Copy)]
 pub struct Complex<T> {
     pub re: T,
     pub im: T,
@@ -6,6 +7,24 @@ pub struct Complex<T> {
 impl<T> Complex<T> {
     pub fn new(re: T, im: T) -> Self {
         Complex { re, im }
+    }
+}
+
+impl<T> PartialEq for Complex<T>
+where
+    T: PartialEq,
+{
+    fn eq(&self, other: &Self) -> bool {
+        self.re == other.re && self.im == other.im
+    }
+}
+
+impl<T> PartialEq<T> for Complex<T>
+where
+    T: PartialEq + num::traits::Zero,
+{
+    fn eq(&self, other: &T) -> bool {
+        self.re == *other && self.im == T::zero()
     }
 }
 
@@ -87,6 +106,32 @@ where
     }
 }
 
+impl<T> Complex<T> {
+    pub fn mod_squared<O, O1>(&self) -> O
+    where
+        T: Copy + std::ops::Mul<Output = O1>,
+        O1: std::ops::Add<Output = O>,
+    {
+        self.re * self.re + self.im * self.im
+    }
+
+    pub fn conjugate(&self) -> Complex<T>
+    where
+        T: Copy + std::ops::Neg<Output = T>,
+    {
+        Complex {
+            re: self.re,
+            im: -self.im,
+        }
+    }
+}
+
+impl Complex<f64> {
+    pub fn modulus(&self) -> f64 {
+        self.mod_squared().sqrt()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::Complex;
@@ -125,6 +170,32 @@ mod tests {
         assert_eq!(c.re, -2);
         assert_eq!(c.im, 14);
         assert_eq!(format!("{}", c), "-2 + 14i");
+    }
+
+    #[test]
+    fn test_mod() {
+        let a = C::new(1.0, -1.0);
+        assert_eq!(a.modulus(), 2.0_f64.sqrt());
+
+        let a = C::new(4.0, -3.0);
+        assert_eq!(a.modulus(), 5.0);
+    }
+
+    #[test]
+    fn test_conj() {
+        let a = C::new(1, -1);
+        let b = a.conjugate();
+        assert_eq!(b.re, 1);
+        assert_eq!(b.im, 1);
+    }
+
+    #[test]
+    fn c_mult_c_conj_eq_mod_squared() {
+        let a = C::new(3, 2);
+        let b = a * a.conjugate();
+        let c = a.mod_squared();
+
+        assert_eq!(b, c);
     }
 
     #[test]
