@@ -1,3 +1,4 @@
+mod matrix;
 mod polar;
 
 #[derive(Debug, Clone, Copy)]
@@ -221,6 +222,13 @@ mod tests {
     #[test]
     fn ex_1_3_7() {
         let res = C::new(2, 2) / C::new(1, -1);
+        println!("{}", res);
+    }
+
+    #[test]
+    fn ex_1_3_8() {
+        let a = C::new(1, -1);
+        let res = a * a * a * a * a;
         println!("{}", res);
     }
 }
