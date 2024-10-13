@@ -1,3 +1,4 @@
+#[derive(Debug, Clone)]
 pub struct Vector<T, const N: usize>([T; N]);
 
 impl<T, const N: usize> std::ops::Add<Vector<T, N>> for Vector<T, N>
@@ -31,6 +32,53 @@ where
     }
 }
 
+impl<T, const N: usize> std::ops::Neg for Vector<T, N>
+where
+    T: std::ops::Neg<Output = T> + Copy,
+{
+    type Output = Vector<T, N>;
+
+    fn neg(self) -> Self::Output {
+        let mut result = Vector(self.0);
+        for i in 0..N {
+            result.0[i] = -result.0[i];
+        }
+        result
+    }
+}
+
+impl<T, const N: usize> num::Zero for Vector<T, N>
+where
+    T: num::Zero + Copy,
+{
+    fn zero() -> Self {
+        Vector([T::zero(); N])
+    }
+
+    fn is_zero(&self) -> bool {
+        for i in 0..N {
+            if !self.0[i].is_zero() {
+                return false;
+            }
+        }
+        true
+    }
+}
+
+impl<T, const N: usize> std::cmp::PartialEq for Vector<T, N>
+where
+    T: std::cmp::PartialEq,
+{
+    fn eq(&self, other: &Self) -> bool {
+        for i in 0..N {
+            if self.0[i] != other.0[i] {
+                return false;
+            }
+        }
+        true
+    }
+}
+
 impl<T, const N: usize> std::fmt::Display for Vector<T, N>
 where
     T: std::fmt::Display,
@@ -57,6 +105,8 @@ where
 
 #[cfg(test)]
 mod tests {
+    use num::Zero;
+
     use super::Vector as V;
     use crate::Complex as C;
 
@@ -104,5 +154,22 @@ mod tests {
         ]);
         let res = v * C::new(8.0, -2.0);
         println!("{}", res);
+    }
+
+    #[test]
+    fn test_neg() {
+        let v = V([C::new(1, 0), C::new(2, -3), C::new(-3, 2)]);
+        let res = -v;
+        assert_eq!(res.0, [C::new(-1, 0), C::new(-2, 3), C::new(3, -2)]);
+    }
+
+    #[test]
+    fn inversion_property() {
+        let v = V([C::new(1, 2), C::new(3, 4), C::new(5, 6)]);
+        let res = v.clone() + -v.clone();
+        assert_eq!(res, V::zero());
+
+        let res = -v.clone() + v.clone();
+        assert_eq!(res, V::zero());
     }
 }

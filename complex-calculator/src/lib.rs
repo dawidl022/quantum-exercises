@@ -129,6 +129,36 @@ impl<T> Complex<T> {
     }
 }
 
+impl<T> std::ops::Neg for Complex<T>
+where
+    T: std::ops::Neg<Output = T>,
+{
+    type Output = Complex<T>;
+
+    fn neg(self) -> Self::Output {
+        Complex {
+            re: -self.re,
+            im: -self.im,
+        }
+    }
+}
+
+impl<T> num::Zero for Complex<T>
+where
+    T: num::Zero,
+{
+    fn zero() -> Self {
+        Complex {
+            re: T::zero(),
+            im: T::zero(),
+        }
+    }
+
+    fn is_zero(&self) -> bool {
+        self.re.is_zero() && self.im.is_zero()
+    }
+}
+
 impl Complex<f64> {
     pub fn modulus(&self) -> f64 {
         self.mod_squared().sqrt()
